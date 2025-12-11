@@ -62,7 +62,7 @@
 1. Abre la URL en cualquier navegador compatible con WebXR.  
 2. Haz click en los portales para navegar entre escenas.  
 3. Interactúa con objetos y plantas:  
-   - Escena 3: click en plantas para ver info.  
-   - Escena 4: click en botón "REGAR" para activar la simulación.  
+   - Escena 2: click en plantas para ver info.  
+   - Escena 3: click en botón "REGAR" para activar la simulación.  
 4. VR: usar gafas compatibles Oculus/Quest para inmersión total.
 
