@@ -2,7 +2,7 @@
 
 > **Equipo:** María y Darío  
 > **Opción:** A) Familia agraria (jardines)  
-> **URL:** [https://github.com/meer1b/proyecto-vr](https://github.com/meer1b/proyecto-vr)
+> **URL:** [https://meer1b.github.io/proyecto-vr/](https://meer1b.github.io/proyecto-vr/)
 
 ---
 
