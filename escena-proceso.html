@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Invernadero</title>
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script>
+        AFRAME.registerComponent('outline-hover', {
+            init: function () {
+                const el = this.el;
+
+                el.addEventListener('model-loaded', () => {
+                    const mesh = el.getObject3D('mesh');
+                    if (!mesh) return;
+
+                    mesh.traverse(node => {
+                        if (node.isMesh) {
+                            node.material.emissive = new THREE.Color(0x000000);
+                            node.material.emissiveIntensity = 0;
+                        }
+                    });
+                });
+
+                // BRILLO al pasar el ratón (color más suave)
+                el.addEventListener('mouseenter', () => {
+                    const mesh = el.getObject3D('mesh');
+                    if (!mesh) return;
+
+                    mesh.traverse(node => {
+                        if (node.isMesh) {
+                            node.material.emissive = new THREE.Color(0x88ff88);  // verde suave
+                            node.material.emissiveIntensity = 0.35;              // brillo delicado
+                        }
+                    });
+                });
+
+                // QUITAR el brillo al salir
+                el.addEventListener('mouseleave', () => {
+                    const mesh = el.getObject3D('mesh');
+                    if (!mesh) return;
+
+                    mesh.traverse(node => {
+                        if (node.isMesh) {
+                            node.material.emissiveIntensity = 0;
+                        }
+                    });
+                });
+            }
+        });
+
+    </script>
+
+</head>
+
+<body>
+    <a-scene>
+
+        <!-- CÁMARA + MOVIMIENTO -->
+        <a-entity camera look-controls wasd-controls="acceleration: 40" position="0 1.6 20">
+            <a-cursor color="white"></a-cursor>
+        </a-entity>
+
+        <!-- PAREDES CUADRADAS QUE RODEAN EL SUELO -->
+        <a-box position="0 10 -25" width="50" height="20" depth="0.5" color="#a2d2ff" src="assets/textures/bosque.png"
+            material="shader: standard; side: double"></a-box>
+        <a-box position="0 10 25" width="50" height="20" depth="0.5" color="#a2d2ff" src="assets/textures/bosque.png"
+            material="shader: standard; side: double"></a-box>
+        <a-box position="25 10 0" width="0.5" height="20" depth="50" color="#a2d2ff" src="assets/textures/bosque.png"
+            material="shader: standard; side: double"></a-box>
+        <a-box position="-25 10 0" width="0.5" height="20" depth="50" color="#a2d2ff" src="assets/textures/bosque.png"
+            material="shader: standard; side: double"></a-box>
+
+        <!-- TECHO -->
+        <a-box position="0 20 0" width="50" height="0.5" depth="50" color="#a2d2ff"
+            material="shader: standard; roughness: 0.8"></a-box>
+        <!-- Cielo -->
+        <a-entity gltf-model="url(assets/models/nube.glb)" position="11 18 -1.0" rotation="0 0 0"
+            scale="0.01 0.01 0.01"> </a-entity>
+        <!-- Suelo de hierba -->
+        <a-plane position="0 0 0" rotation="-90 0 0" width="50" height="50" src="assets/textures/hierba.png"
+            repeat="10 10" material="shader: standard; side: double"></a-plane>
+
+        <!-- Caminos -->
+        <a-plane position="3.5 0.01 9.5" rotation="-90 180 90" width="3" height="10" src="assets/textures/path.png"
+            repeat="1 4" material="shader: standard; side: double"></a-plane>
+        <a-plane position="8 0.01 20" rotation="-90 180 90" width="2" height="15" src="assets/textures/path.png"
+            repeat="1 4" material="shader: standard; side: double"></a-plane>
+        <a-plane position="-0.5 0.01 18.5" rotation="-90 90 90" width="2" height="15" src="assets/textures/path.png"
+            repeat="1 4" material="shader: standard; side: double"></a-plane>
+
+
+        <!-- LUCES -->
+        <a-light type="ambient" color="#FFDDBB" intensity="1"></a-light>
+        <a-light type="directional" position="1 3 2" intensity="0.6"></a-light>
+
+        <!-- Cartel -->
+        <a-entity id="plant-counter" position="0 2 1">
+            <a-plane color="#2E7D32" width="7" height="3" material="opacity: 0.85"></a-plane>
+            <a-text value="Toca las plantas del" align="center" color="#E8F5E9" position="0 1 0.05" width="10"></a-text>
+            <a-text value="invernadero para ver info" align="center" color="#E8F5E9" position="0 0.5 0.05"
+                width="10"></a-text>
+            <a-text id="click-count-text" value="Numero de plantas vistas: 0" align="center" color="#E8F5E9"
+                position="0 -0.5 0.05" width="10"></a-text>
+            <a-text id="ultima-planta" value="Ultima planta vista: -" align="center" color="#E8F5E9"
+                position="0 -1 0.05" width="10"></a-text>
+        </a-entity>
+
+
+
+        <!-- BOSQUE -->
+        <a-entity gltf-model="url(assets/models/forest.glb)" position="-12 0.05 -12.55" rotation="0 180 0"
+            scale="1.7 6 1.5"> </a-entity>
+
+
+        <!--Cobertizo-->
+        <a-entity gltf-model="url(assets/models/cobertizo.glb)" position="10 0 20" rotation="0 0 0"
+            scale="0.5 0.5 0.5"></a-entity>
+
+
+        <!-- Portal -->
+        <a-plane position="12 2 19.8" rotation="0 -90 0" height="1.5" width="3" color="#1E88E5" class="clickable"
+            onclick="window.location.href='escena-resultado.html';"
+            event-set__hover="_event: mouseenter; color: #42A5F5; scale: 1.1 1.1 1.1"
+            event-set__unhover="_event: mouseleave; color: #1E88E5; scale: 1 1 1">
+
+            <a-text value="Ir a la siguiente escena" align="center" position="0 0 0.1" color="#FFFFFF" width="4"
+                side="double" anchor="center">
+                <a-animation attribute="scale" direction="alternate" dur="1000" repeat="indefinite"
+                    to="1.05 1.05 1"></a-animation>
+            </a-text>
+
+            <a-ring position="0 0 0" rotation="-90 0 0" radius-inner="1.7" radius-outer="1.9" color="#42A5F5"
+                material="shader: flat; opacity: 0.5"
+                animation="property: rotation; to: 0 0 360; loop: true; dur: 3000; easing: linear"></a-ring>
+        </a-plane>
+
+        <!-- huerto -->
+        <a-entity gltf-model="url(assets/models/huerto.glb)" position="-20 0.01 19 " rotation="0 -2.5 0"
+            scale="0.05 0.05 0.07 "></a-entity>
+        <a-entity gltf-model="url(assets/models/huerto.glb)" position="-15.2 0.01 19.2 " rotation="0 -2.5 0"
+            scale="0.05 0.05 0.07 "></a-entity>
+        <a-entity gltf-model="url(assets/models/huerto.glb)" position="-10.5 0.01 19.4 " rotation="0 -2.5 0"
+            scale="0.05 0.05 0.07 "></a-entity>
+        <a-entity gltf-model="url(assets/models/huerto.glb)" position="-5.5 0.01 19.6 " rotation="0 -2.5 0"
+            scale="0.05 0.05 0.07 "></a-entity>
+        <a-entity gltf-model="url(assets/models/huerto.glb)" position="-20 0.01 11 " rotation="0 -2.5 0"
+            scale="0.05 0.05 0.07 "></a-entity>
+        <a-entity gltf-model="url(assets/models/huerto.glb)" position="-15.2 0.01 11 " rotation="0 -2.5 0"
+            scale="0.05 0.05 0.07 "></a-entity>
+        <a-entity gltf-model="url(assets/models/huerto.glb)" position="-10.5 0.01 11 " rotation="0 -2.5 0"
+            scale="0.05 0.05 0.07 "></a-entity>
+        <a-entity gltf-model="url(assets/models/huerto.glb)" position="-5.5 0.01 11 " rotation="0 -2.5 0"
+            scale="0.05 0.05 0.07 "></a-entity>
+
+        <a-entity gltf-model="url(assets/models/valla.glb)" position="-2.35 0.01 23 " rotation="0 180 0"
+            scale="1.55 1 1 "></a-entity>
+        <a-entity gltf-model="url(assets/models/valla.glb)" position="-23 0.01 6.5 " rotation="0 -2.5 0"
+            scale="1.55 1 1 "></a-entity>
+        <a-entity gltf-model="url(assets/models/valla.glb)" position="-23 0.01 23 " rotation="0 90 0"
+            scale="1.25 1 1 "></a-entity>
+        <a-entity gltf-model="url(assets/models/valla.glb)" position="-2.35 0.01 17 " rotation="0 270 0"
+            scale="0.437 1 1 "></a-entity>
+        <a-entity gltf-model="url(assets/models/valla.glb)" position="-2.35 0.01 7.5 " rotation="0 270 0"
+            scale="0.48 1 1 "></a-entity>
+
+        <a-entity gltf-model="url(assets/models/espanta2.glb)" position="-10 0 15.31 " rotation="7 130 0"
+            scale="0.08 0.08 0.08 "></a-entity>
+
+
+        <!-- Garden Beds -->
+        <a-entity gltf-model="url(assets/models/bed.glb)" position="11.39 0.05 6.6" rotation="0 -2.5 0"
+            scale="0.05 0.05 0.04"></a-entity>
+        <a-entity gltf-model="url(assets/models/bed.glb)" position="14.1 0.05 6.71" rotation="0 -92 0"
+            scale="0.041 0.05 0.04"></a-entity>
+        <a-entity gltf-model="url(assets/models/bed.glb)" position="11.1 0.05 12.3" rotation="0 -2.5 0"
+            scale="0.05 0.05 0.04"></a-entity>
+
+        <!-- Plantas  dentro del invernadero-->
+        <a-entity gltf-model="url(assets/models/plantitas.glb)" position="13.0 1 6.2" rotation="0 0 0"
+            scale="0.3 0.7 0.3"
+            show-info="text: Lavanda: Arbusto aromatico del Mediterraneo, usado en perfumeria y con propiedades relajantes."
+            outline-hover></a-entity>
+
+        <a-entity gltf-model="url(assets/models/peques.glb)" position="13.5 1 5.5" rotation="0 90 0" scale="0.3 0.7 0.3"
+            show-info="text: Zanahorias: Hortaliza de raíz comestible, sus hojas verdes se pueden usar en infusiones."
+            outline-hover></a-entity>
+
+        <a-entity gltf-model="url(assets/models/tomato.glb)" position="15 0.5 11.5" rotation="0 0 0"
+            scale="0.01 0.01 0.01"
+            show-info="text: Tomatero: Planta horticola que produce tomates, necesita suelo fertil y agua regular"
+            outline-hover></a-entity>
+
+        <a-entity gltf-model="url(assets/models/tomato.glb)" position="13.5 0.5 11.5" rotation="0 90 0"
+            scale="0.008 0.008 0.008"
+            show-info="text: Tomatero: Planta horticola que produce tomates, necesita suelo fertil y agua regular."
+            outline-hover></a-entity>
+
+        <a-entity gltf-model="url(assets/models/tomato.glb)" position="12 0.5 11.5" rotation="0 150 0"
+            scale="0.009 0.009 0.009"
+            show-info="text: Tomatero: Planta horticola que produce tomates, necesita suelo fertil y agua regular."
+            outline-hover></a-entity>
+
+        <a-entity gltf-model="url(assets/models/planta.glb)" position="15 0.8 7.7" rotation="0 90 0"
+            scale="0.02 0.02 0.02"
+            show-info="text: Lavanda: Arbusto aromatico del Mediterraneo, usado en perfumeria y con propiedades relajantes."
+            outline-hover>></a-entity>
+
+        <a-entity gltf-model="url(assets/models/planta.glb)" position="15 1 8.8" rotation="0 180 0"
+            scale="0.01 0.01 0.01"
+            show-info="text: Lavanda: Arbusto aromatico del Mediterraneo, usado en perfumeria y con propiedades relajantes."
+            outline-hover></a-entity>
+
+        <a-entity gltf-model="url(assets/models/tulip.glb)" position="15 1.1 9.7" rotation="0 0 0" scale="1 1 1"
+            show-info="text: Tulipan: Planta bulbosa originaria de Europa y Asia, conocida por sus flores de colores vivos."
+            outline-hover></a-entity></a-entity>
+
+        <!-- Limonero y macetas -->
+        <a-entity gltf-model="url(assets/models/limonero.glb)" position="10.5 2.2 5.1" rotation="0 0 0"
+            scale="0.25 0.25 0.25"
+            show-info="text: Limonero: Arbol citrico que produce limones comestibles, requiere riego moderado"
+            outline-hover></a-entity>
+        <a-entity gltf-model="url(assets/models/maceta.glb)" position="10.2 0.4 5.8" rotation="0 0 0"
+            scale="0.13 0.13 0.13" show-info="text: Maceta vacia: Aun no hay nada, que crees que deberiamos plantar?."
+            outline-hover></a-entity>
+        <a-entity gltf-model="url(assets/models/flowerpot.glb)" position="9.3 0.6 5.3" rotation="0 0 0" scale="2 3 2"
+            show-info="text: Hiedra: Ayuda a purificar el aire y aporta verde constante. " outline-hover></a-entity>
+        <a-entity gltf-model="url(assets/models/gatoflor.glb)" position="7.5 -0.12 11.8" rotation="0 -90 0"
+            scale="100 100 100"></a-entity>
+        <a-entity gltf-model="url(assets/models/dosmacetas.glb)" position="10.8 0.2 11.3" rotation="0 90 0"
+            scale="4 4 4"
+            show-info="text: Helecho: Planta sin flores que prospera en ambientes humedos y sombreados, conocida por sus frondas verdes y delicadas."
+            outline-hover></a-entity>
+
+        <!-- Abono y herramientas -->
+        <a-entity gltf-model="url(assets/models/abono.glb)" position="8 0 5.5" rotation="0 180 0"
+            scale="90 90 90"></a-entity>
+
+        <a-entity gltf-model="url(assets/models/regadera.glb)" position="11 0.4 6" rotation="0 -40 0"
+            scale="0.05 0.05 0.05"></a-entity>
+        <a-entity gltf-model="url(assets/models/manguera.glb)" position="15 0 15.8" rotation="0 90 0"
+            scale="0.04 0.04 0.04"></a-entity>
+        <a-entity gltf-model="url(assets/models/tools.glb)" position="8 1.2 7.5" rotation="-85 90 0"
+            scale="2 2 2"></a-entity>
+        <a-entity gltf-model="url(assets/models/tools2.glb)" position="7 0.1 6" rotation="0 -130 0"
+            scale="2 2 2"></a-entity>
+
+
+
+        <!-- Cartel del pozo -->
+        <a-entity position="8 1 1">
+            <a-plane color="#1E88E5" width="3" height="1" rotation="0 -20 0" material="opacity: 0.85; shader: standard;"
+                scale="1 1 1">
+            </a-plane>
+
+            <a-text value="Acercate para oir el agua del pozo" align="center" color="#FFFFFF" position="0 0 0.01"
+                width="2" scale="1.5 1.5 1" rotation="0 -20 0" wrap-count="20">
+
+            </a-text>
+        </a-entity>
+
+        <!-- Pozo -->
+        <a-entity id="pozo" gltf-model="url(assets/models/pozo.glb)" position="8 0 -1" rotation="0 -30 0"
+            scale="0.02 0.02 0.02" sound="src: url(assets/sounds/pozo.mp3);
+            autoplay: true;
+            loop: true;
+            positional: true;
+            volume: 0.5;
+            refDistance: 2;
+            maxDistance: 12;
+            rolloffFactor: 1.0"></a-entity>
+
+
+<!-- Texto que aparece al principio -->
+  <a-text id="texto-instruccion"
+        value="HAZ CLICK PARA ESCUCHAR SONIDO"
+        position="0 2.2 17" 
+        color="#FFD700"
+        align="center"
+        width="4"
+        side="double"
+        animation="property: scale; dir: alternate; dur: 1000; to: 1.1 1.1 1; loop: true"
+        animation__color="property: color; dir: alternate; dur: 1500; to: #FF8C00; loop: true">
+</a-text>
+
+
+  <script>
+    const texto = document.querySelector('#texto-instruccion');
+
+    // Evento click en cualquier parte de la escena
+    document.querySelector('a-scene').addEventListener('click', () => {
+      texto.setAttribute('visible', 'false'); // Desaparece el texto
+    }, { once: true }); // solo una vez
+  </script>
+
+        <!-- Audio ambiental -->
+        <a-sound id="ambiente" src="assets/sounds/ambiente2.mp3" autoplay="false" loop="true" position="0 2 0"
+            volume="5"></a-sound>
+        <script>
+            document.querySelector('a-scene').addEventListener('loaded', () => {
+                document.body.addEventListener('click', () => {
+                    const sonido = document.querySelector('#ambiente');
+                    sonido.components.sound.playSound();
+                    // Oculta el texto una vez activado
+                    document.querySelector('#activar-sonido').setAttribute('visible', 'false');
+                }, { once: true });
+            });
+        </script>
+
+
+        <!-- Conejo -->
+        <a-entity gltf-model="url(assets/models/conejo.glb)" position="5.8 0 0" rotation="0 20 0"
+            scale="0.04 0.04 0.04"></a-entity>
+
+
+        <!-- LUZ CÁLIDA DENTRO DEL INVERNADERO -->
+        <a-light type="point" position="13.5 2 5.5" color="#FFCC88" intensity="1.5" distance="8"></a-light>
+
+        <!-- INVERNADERO  -->
+        <a-entity gltf-model="url(assets/models/greenhouse.glb)" position="0 0.5 8" rotation="0 90 0"
+            scale="0.04 0.03 0.04" material="opacity: 0.9; transparent: true;"></a-entity>
+
+
+
+
+
+
+        <!-- PANEL DE INFO (ÚNICO) -->
+        <a-entity id="info-panel" visible="false">
+            <a-plane id="info-bg" width="2" height="1" color="#333" opacity="0.85"></a-plane>
+            <a-text id="info-text" value="" position="-0.9 0 0.01" width="1.2" wrap-count="25"></a-text>
+        </a-entity>
+
+        <script>
+            let plantClickCount = 0;
+
+            AFRAME.registerComponent('show-info', {
+                schema: { text: { type: 'string' } },
+
+                init: function () {
+                    this.el.addEventListener('click', () => {
+                        const panel = document.querySelector('#info-panel');
+                        const textEl = document.querySelector('#info-text');
+                        const ultimo = document.querySelector('#ultima-planta');
+
+                        const panelWasVisible = panel.getAttribute('visible');
+
+                        if (panelWasVisible) {
+                            panel.setAttribute('visible', false);
+                        } else {
+                            // Mostrar panel
+                            textEl.setAttribute('value', this.data.text);
+
+                            const pos = this.el.object3D.position;
+                            panel.setAttribute('position', { x: pos.x, y: pos.y + 2, z: pos.z });
+                            panel.object3D.lookAt(
+                                document.querySelector('[camera]').object3D.getWorldPosition(new THREE.Vector3())
+                            );
+                            panel.setAttribute('visible', true);
+
+                            // Contador solo cuando se abre
+                            plantClickCount++;
+                            document
+                                .querySelector('#click-count-text')
+                                .setAttribute('value', `Numero de plantas: ${plantClickCount}`);
+
+                            // Actualizar última planta vista (usa el nombre antes de los dos puntos)
+                            const nombre = this.data.text.split(":")[0];
+                            ultimo.setAttribute('value', `Ultima planta vista: ${nombre}`);
+                        }
+                    });
+                }
+            });
+
+
+
+
+        </script>
+
+
+
+
+
+
+
+
+
+
+
+    </a-scene>
+</body>
+
+</html>

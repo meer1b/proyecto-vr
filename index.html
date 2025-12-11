@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Invernadero con Portales</title>
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+</head>
+
+<body>
+    <a-scene>
+
+        <!-- CÁMARA + CURSOR -->
+        <a-entity camera position="0 1.6 5" wasd-controls look-controls>
+            <a-cursor color="white"></a-cursor>
+        </a-entity>
+
+        <!-- SUELO -->
+        <a-plane rotation="-90 0 0" width="15" height="10" color="#7BC8A4"></a-plane>
+
+        <!-- PORTAL 1 -->
+        <a-plane position="-4 1.5 -3" width="2" height="3" material="src: url(screenshots/escena1.png); side: double"
+            cursor-listener="url: escena-360.html"
+            event-set__hover="_event: mouseenter; color: #42A5F5; scale: 1.1 1.1 1.1"
+            event-set__unhover="_event: mouseleave; color: #1E88E5; scale: 1 1 1">
+        </a-plane>
+
+        <a-text value="Escena 1" position="-4 3.5 -3" align="center" color="black" width="3" scale="2 2 2"></a-text>
+
+        <!-- PORTAL 2 -->
+        <a-plane position="0 1.5 -3" width="2" height="3" material="src: url(screenshots/escena2.png); side: double"
+            cursor-listener="url: escena-proceso.html"
+            event-set__hover=" _event: mouseenter; color: #42A5F5; scale: 1.1 1.1 1.1"
+            event-set__unhover="_event: mouseleave; color: #1E88E5; scale: 1 1 1">
+        </a-plane>
+        <a-text value="Escena 2" position="0 3.5 -3" align="center" color="black" width="3" scale="2 2 2"></a-text>
+
+        <!-- PORTAL 3 -->
+        <a-plane position="4 1.5 -3" width="2" height="3" material="src: url(screenshots/escena3.png); side: double"
+            cursor-listener="url: escena-resultado.html"
+            event-set__hover="_event: mouseenter; color: #42A5F5; scale: 1.1 1.1 1.1"
+            event-set__unhover="_event: mouseleave; color: #1E88E5; scale: 1 1 1">
+        </a-plane>
+        <a-text value="Escena 3" position="4 3.5 -3" align="center" color="black" width="3" scale="2 2 2"></a-text>
+
+        <script>
+            // Componente genérico para abrir documentos al hacer click
+            AFRAME.registerComponent('cursor-listener', {
+                schema: {
+                    url: { type: 'string' }
+                },
+                init: function () {
+                    this.el.addEventListener('click', () => {
+                        if (this.data.url) {
+                            window.location.href = this.data.url; // abre la página en la misma pestaña
+                        }
+                    });
+                }
+            });
+        </script>
+
+    </a-scene>
+</body>
+
+</html>

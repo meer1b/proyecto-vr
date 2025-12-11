@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Jardín 360°</title>
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+</head>
+
+<body>
+    <a-scene>
+
+        <!-- Cámara + cursor -->
+        <a-entity camera look-controls>
+            <a-cursor color="#FFF"></a-cursor>
+        </a-entity>
+
+        <!-- Imagen 360° -->
+        <a-sky src="assets/360/jardin.jpg" rotation="0 -90 0" material="shader: flat; color: #fff;"></a-sky>
+
+        <!-- Texto interactivo para activar sonido -->
+        <a-text id="activar-sonido" value="Haz click para activar el sonido"
+            position="-0.3 1.5 -3" color="#FFD700" align="center" width="3" side="double" anchor="center"
+            animation="property: scale; dir: alternate; dur: 1000; to: 1.1 1.1 1; loop: true"
+            animation__color="property: color; dir: alternate; dur: 1500; to: #FF8C00; loop: true">
+        </a-text>
+
+        <!-- Audio ambiental -->
+        <a-sound id="ambiente" src="assets/sounds/ambiente.mp3" autoplay="false" loop="true" position="0 2 0"
+            volume="5"></a-sound>
+
+        <script>
+            document.querySelector('a-scene').addEventListener('loaded', () => {
+                document.body.addEventListener('click', () => {
+                    const sonido = document.querySelector('#ambiente');
+                    sonido.components.sound.playSound();
+                    // Oculta el texto una vez activado
+                    document.querySelector('#activar-sonido').setAttribute('visible', 'false');
+                }, { once: true });
+            });
+        </script>
+
+        <!-- Portal 3D -->
+        <a-plane position="-0.6 -0.4 -6" height="1.5" width="3" color="#1E88E5" class="clickable"
+            onclick="window.location.href='escena-proceso.html';"
+            event-set__hover="_event: mouseenter; color: #42A5F5; scale: 1.1 1.1 1.1"
+            event-set__unhover="_event: mouseleave; color: #1E88E5; scale: 1 1 1">
+            
+            <!-- Texto simple y grande -->
+            <a-text value="Ir al Invernadero" align="center" position="0 0 0.1" color="#FFFFFF" width="4" side="double"
+                anchor="center">
+                <a-animation attribute="scale" direction="alternate" dur="1000" repeat="indefinite"
+                    to="1.05 1.05 1"></a-animation>
+            </a-text>
+
+            <!-- Halo animado alrededor del portal -->
+            <a-ring position="0 0 0" rotation="-90 0 0" radius-inner="1.7" radius-outer="1.9" color="#42A5F5"
+                material="shader: flat; opacity: 0.5"
+                animation="property: rotation; to: 0 0 360; loop: true; dur: 3000; easing: linear"></a-ring>
+        </a-plane>
+
+    </a-scene>
+</body>
+
+</html>

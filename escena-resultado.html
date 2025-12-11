@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Invernadero con Techo Completo</title>
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+</head>
+<body>
+  <a-scene>
+
+    <!-- CÁMARA + CURSOR -->
+    <a-entity camera look-controls wasd-controls="acceleration: 40" position="0 2.4 4.4">
+      <a-cursor color="white"></a-cursor>
+    </a-entity>
+
+    <!-- Paredes -->
+    <a-box position="0 2.5 -5" depth="0.1" height="5" width="10" material="src: assets/textures/pared.png; repeat: 1 1;"></a-box>
+    <a-box position="0 2.5 5" depth="0.1" height="5" width="10" material="src: assets/textures/pared.png; repeat: 1 1;"></a-box>
+    <a-box position="-5 2.5 0" depth="10" height="5" width="0.1" material="src: assets/textures/pared.png; repeat: 1 2;"></a-box>
+    <a-box position="5 2.5 0" depth="10" height="5" width="0.1" material="src: assets/textures/pared.png; repeat: 1 2;"></a-box>
+
+    <!-- Suelo -->
+    <a-plane rotation="-90 0 0" width="10" height="10" position="0 0 0" material="src: assets/textures/suelo.png"></a-plane>
+
+    <!-- Techo -->
+    <a-plane position="-2.7 6.3 0" width="6.25" height="10.2" rotation="240 90 90" material="src: assets/textures/techo.png; side: double;"></a-plane>
+    <a-plane position="2.7 6.3 0" width="6.25" height="10.2" rotation="300 90 90" material="src: assets/textures/techo.png; side: double;"></a-plane>
+
+    <!-- Triángulos frontales -->
+    <a-triangle vertex-a="-5 5 -5" vertex-b="5 5 -5" vertex-c="0 8 -5" material="src: assets/textures/pared.png; side: double;"></a-triangle>
+    <a-triangle vertex-a="-5 5 5" vertex-b="5 5 5" vertex-c="0 8 5" material="src: assets/textures/pared.png; side: double;"></a-triangle>
+
+    <!-- MESA 3D -->
+
+    <!-- MESA -->
+    <a-entity gltf-model="url(assets/models/old_table.glb)" position="0 0 0" rotation="0 90 0" scale="0.03 0.02 0.05"></a-entity>
+
+    <!-- PLANTA -->
+    <a-entity id="plant" position="0 1.5 1" scale="0.6 0.6 0.6"
+      multi-plant="
+        plant1: assets/models/tulipane1.glb;
+        plant2: assets/models/tulipane2.glb;
+        plant3: assets/models/tulipane3.glb;
+        deadPlant: assets/models/tulipaneMuerto.glb;">
+    </a-entity>
+
+    <!-- TEXTO DE PLANTA MUERTA -->
+    <a-text id="deathText" value="" position="0 2 0" align="center" color="#ff0000" width="4" visible="false"></a-text>
+
+    <a-entity id="waterButton" geometry="primitive: plane; width: 1.5; height: 0.5"
+          material="color: #00AAFF"
+          position="0 1.5 2"
+          text="value: REGAR; align: center; color: #FFF"
+          cursor-water>
+</a-entity>
+
+
+<!-- PANEL DE DATOS -->
+<a-plane id="panel" position="3 2 1.5" width="2" height="1.5" color="#222" material="opacity:0.8" rotation="0 -30 0">
+  <a-text id="panelText" value="Datos de simulación" position="-0.9 0.6 0" color="#FFF" width="1.8"></a-text>
+</a-plane>
+<!-- Sonido de riego -->
+<a-entity id="waterSound" sound="src: url(assets/sounds/riego.mp3); autoplay: false; volume: 1"></a-entity>
+
+
+
+    <script>
+      AFRAME.registerComponent("multi-plant", {
+  schema: {
+    plant1: { type: "string" },
+    plant2: { type: "string" },
+    plant3: { type: "string" },
+    deadPlant: { type: "string" }
+  },
+
+  init: function () {
+    this.clickCount = 0;
+    this.plantSequence = [this.data.plant1, this.data.plant2, this.data.plant3, this.data.deadPlant];
+
+    // Cargar la primera planta
+    this.setModel(this.plantSequence[0]);
+  },
+
+  water: function() {
+    this.clickCount++;
+    if (this.clickCount >= this.plantSequence.length) return;
+
+    const nextModel = this.plantSequence[this.clickCount];
+    this.setModel(nextModel, () => {
+      // Animación de escala después de que el modelo cargue
+      this.el.setAttribute("scale", "0.7 0.7 0.7");
+      this.el.setAttribute("animation", {
+        property: "scale",
+        to: "0.6 0.6 0.6",
+        dur: 400,
+        easing: "easeOutElastic"
+      });
+    });
+
+    // Si es la última planta (muerta) mostrar texto
+    if (this.clickCount === this.plantSequence.length - 1) {
+      const txt = document.getElementById("deathText");
+      txt.setAttribute("value", "LA HAS MATAO");
+      txt.setAttribute("visible", true);
+      setTimeout(() => { txt.setAttribute("visible", false); }, 4000);
+    }
+  },
+
+  setModel: function(url, callback) {
+    // Eliminar hijos anteriores
+    while(this.el.firstChild) this.el.removeChild(this.el.firstChild);
+
+    // Quitar gltf-model anterior
+    this.el.removeAttribute("gltf-model");
+    this.el.setAttribute("gltf-model", "url(" + url + ")");
+
+    if (callback) {
+      this.el.addEventListener('model-loaded', function once() {
+        callback();
+        this.removeEventListener('model-loaded', once);
+      });
+    }
+  }
+});
+// Componente para escuchar clicks del cursor en A-Frame
+  AFRAME.registerComponent('cursor-changeplant', {
+  init: function () {
+    this.el.addEventListener('click', () => {
+      const plantEl = document.getElementById("plant");
+      plantEl.components["multi-plant"].water();
+    });
+  }
+});
+
+
+
+  // Datos simulación operativa
+AFRAME.registerComponent('sim-operativa', {
+  init: function() {
+    this.humedad = 50; // 0-100%
+    this.temperatura = 22; // ºC
+    this.puntuacion = 0;
+    this.estado = "VIVA";
+    this.panel = document.getElementById("panelText");
+
+    // Actualizar panel cada segundo
+    this.el.sceneEl.addEventListener('loaded', () => {
+      this.interval = setInterval(() => this.updatePanel(), 1000);
+    });
+  },
+  updatePanel: function() {
+    // Cambios simulados
+    if (Math.random() < 0.3) this.humedad += 5; else this.humedad -= 2;
+    if (Math.random() < 0.3) this.temperatura += 0.5; else this.temperatura -= 0.3;
+
+    // Limitar valores
+    this.humedad = Math.min(Math.max(this.humedad, 0), 100);
+    this.temperatura = Math.min(Math.max(this.temperatura, 10), 35);
+
+    // Estado planta
+    const plantEl = document.getElementById("plant");
+    if (plantEl.components["multi-plant"].clickCount < 3) this.estado = "VIVA";
+    else this.estado = "MUERTA";
+
+    // Puntuación: +10 si planta viva
+    this.puntuacion = (this.estado === "VIVA") ? 10 : 0;
+
+    // Actualizar panel
+    this.panel.setAttribute("value",
+      `Humedad: ${this.humedad.toFixed(0)}%\n` +
+      `Temperatura: ${this.temperatura.toFixed(1)}°C\n` +
+      `Estado planta: ${this.estado}\n` +
+      `Puntuacion: ${this.puntuacion}`
+    );
+  },
+  remove: function() { clearInterval(this.interval); }
+});
+
+// Activar simulación en la escena
+document.querySelector('a-scene').setAttribute('sim-operativa', '');
+
+AFRAME.registerComponent('cursor-water', {
+  init: function () {
+    this.el.addEventListener('click', () => {
+      const plantEl = document.getElementById("plant");
+      const soundEl = document.getElementById("waterSound");
+
+      soundEl.components.sound.stopSound(); 
+      soundEl.components.sound.playSound();
+
+      plantEl.components["multi-plant"].water();
+
+      setTimeout(() => { 
+        soundEl.components.sound.stopSound(); 
+      }, 5000);
+    });
+  }
+});
+
+
+
+    </script>
+  </a-scene>
+</body>
+</html>
