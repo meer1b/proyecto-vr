@@ -32,10 +32,10 @@
 | Criterio | Evidencia en software | Evidencia en README.md |
 |----------|--------------------|----------------------|
 | a) Tecnologías habilitadoras digitales | Uso de A-Frame, `<a-scene>`, `<a-sky>`, `<a-gltf-model>` | Tabla de características de A-Frame |
-| b) Relación con productos/servicios | Escena 3 y 4 muestran plantas interactivas, info y riego | Explicación de experiencia educativa y de simulación |
+| b) Relación con productos/servicios | Escena 2 y 3 muestran plantas interactivas, info y riego | Explicación de experiencia educativa y de simulación |
 | c) Sostenibilidad | Assets optimizados (<2MB para 360°, <1MB para modelos), carga rápida | Impacto ambiental reducido: evita visitas físicas al jardín |
 | d) Nuevos mercados | Experiencia educativa y de simulación remota | Turismo virtual, edutainment |
-| e) Negocio + Planta | Escena 2 = experiencia visual, Escenas 3-4 = simulación de invernadero | Análisis de negocio y operativa |
+| e) Negocio + Planta | Escena 1 = experiencia visual, Escenas 2-3 = simulación de invernadero | Análisis de negocio y operativa |
 | f) Mejoras IT + OT | Datos dinámicos, paneles en tiempo real, multi-dispositivo | Explicación de ventajas de digitalización |
 | g) Informe | — | Este README.md cumple como documentación profesional |
 
